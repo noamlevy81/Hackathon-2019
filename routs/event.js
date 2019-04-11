@@ -1,8 +1,10 @@
 const express = require("express")
 const router = express.Router()
 const Event = require('../database/mongodb/models/event')
+const mongoose = require('mongoose')
 
 router.post('/', (req, res) => {
+    console.log('hello')
     const event= new Event({
         _id: mongoose.Types.ObjectId(),
         location: req.body.location,
@@ -38,7 +40,6 @@ router.post('/', (req, res) => {
 })
 
 router.get('/', (req, res) => {
-    
     Event.find()
     .exec()
     .then(events => {
@@ -71,7 +72,6 @@ router.get('/:coordinates', (req, res) => {
         })
     })
 })
-
 
 module.exports = router
 

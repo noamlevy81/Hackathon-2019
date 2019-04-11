@@ -4,8 +4,8 @@ const app = express()
 require('dotenv').config()
 const mongoDb = require('./database/mongodb/mongodb')
 const bodyParser = require("body-parser")
-const eventRoutes = require('./routs/event')
 const port = process.env.PORT || 8080
+const eventRoutes = require('./routs/event')
 const server = http.createServer(app)
 
 

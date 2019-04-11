@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 const eventSchema = mongoose.Schema({
     _id: mongoose.Schema.Types.ObjectId,
-    location: { type: [Number, Number], required : true },
-    adminUser: { type:String, required: true },
-    name: { type: String, required: true },
-    Category:{ type: String, required: true },
+    location: { type: [Number, Number] },
+    adminUser: { type:String },
+    name: { type: String },
+    category:{ type: String },
     maxCapacity: { type: Number },
     participantsNum : { type: Number },
     description: { type: String },
