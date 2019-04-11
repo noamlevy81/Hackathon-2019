@@ -3,6 +3,7 @@ const router = express.Router()
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const Profile = require('../database/mongodb/models/profile')
+const Event = require('../database/mongodb/models/event')
 const mongoose = require('mongoose')
 require('dotenv').config()
 
@@ -27,9 +28,9 @@ router.post("/signup", (req, res) => {
                         _id: new mongoose.Types.ObjectId(),
                         email: req.body.email,
                         password: hash,
-                        adminEvents: null,
-                        attendingEvents: null,
-                        pendingEvents: null,
+                        adminEvents: new Array(),
+                        attendingEvents: new Array(),
+                        pendingEvents: new Array(),
                         age:req.body.age
                     })
                     profile.save()
@@ -56,40 +57,35 @@ router.post('/login', (req, res) => {
     .then(profile => {
         if (profile === null) {
             return res.status(401).json({
+                
                 message: "Auth failed"
             })
         }
         bcrypt.compare(req.body.password, profile.password, (err, result) => {
             if (err) {
                 return res.status(401).json({
-                    message: "Auth failed"
+                    message: "Authentication failed"
                 })
             }
-            bcrypt.compare(req.body.password, profile.password, (err, result) => {
-                if (err) {
-                    return res.status(401).json({
-                        message: "Authentication failed"
-                    })
-                }
-                if(result) {
-                    const token = jwt.sign({
-                        email: profile.email,
-                        userId: profile._id
-                    },
-                    process.env.JWT_KEY,
-                    {
-                        expiresIn: "1h"
-                    })
-                    return res.status(200).json({
-                        message: "Auth successful",
-                        token: token
-                    })
-                }
-                res.status(401).json({
-                    message: "Auth failed"
+            if(result) {
+                const token = jwt.sign({
+                    email: profile.email,
+                    userId: profile._id
+                },
+                process.env.JWT_KEY,
+                {
+                    expiresIn: "1h"
                 })
+                return res.status(200).json({
+                    message: "Auth successful",
+                    token: token
+                })
+            }
+            res.status(401).json({
+                message: "Auth failed"
             })
         })
+        
     })
     .catch(err => {
         console.log(err);
@@ -99,7 +95,7 @@ router.post('/login', (req, res) => {
     })
 })
 
-router.post('/enroll/:eventId', (req, res) => {
+router.post('/enroll', (req, res) => {
     Event.findById(req.query.eventId).exec()
     .then(event => {
         if(event.maxCapacity === event.participants.length){
@@ -107,8 +103,10 @@ router.post('/enroll/:eventId', (req, res) => {
         }
         else {
             Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
-                profile.attendingEvents.push(req.query.eventId) 
-                event.participants.push(profile._id)  
+                console.log(profile)
+                profile.attendingEvents.push(event._id) 
+                event.participants.push(profile._id)
+                res.status(400).json({message: `user id ${profile._id} enrolled to event id ${event._id}`})
             })
         }
     })
