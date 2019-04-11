@@ -18,8 +18,12 @@ exports.enroll = (req, res) => {
                 if(event.participants.contains(profile._id) || event.adminUser === profile._id){
                     return res.status(409).json({message: "cannot join to already enrolled event"})
                 }
-                profile.attendingEvents.push(event._id) 
-                event.participants.push(profile._id)
+                Profile.update({ "_id": profile._id},
+                { "$push": { "attendingEvents": event._id }});
+
+                Event.update({ "_id": event._id},
+                { "$push": { "participants": profile._id }});
+
                 res.status(200).json({message: `user id ${profile._id} enrolled to event id ${event._id}`})
             })
             .catch((err) => {
@@ -121,17 +125,10 @@ exports.signup = (req, res) => {
 
 exports.getEvents = (req, res) => {
     
-    let requestType
-    if('attending' in req.query) {
-        requestType = attendingEvents
-    }
-    else if('admin' in req.query) {
-        requestType = adminEvents
-    }
     Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec()
     .then((profile) => {
         if(profile !== null) {
-            return res.status(201).json({adminEvents: profile[`${requestType}`]})
+            return res.status(201).json({events: profile[`${req.query.type}`]})
         }
         else {
             return res.status(500).json({message: 'profile doesn\'t exist'})
