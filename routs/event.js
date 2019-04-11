@@ -6,12 +6,13 @@ const jwt = require('jsonwebtoken')
 const Profile = require('../database/mongodb/models/profile')
 
 router.post('/', (req, res) => {
-   Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
-       if(req.headers.authorization === null) {
+    Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
+        if(req.headers.authorization === null) {
             res.status(res.status(500).json({
                 error: 'no access token exists'
             }))
-       }else{
+        } 
+        else {
             const event= new Event({
                 _id: mongoose.Types.ObjectId(),
                 location: [req.body.long, req.body.lat],
@@ -22,7 +23,7 @@ router.post('/', (req, res) => {
                 participants: null,
                 description: req.body.description,
                 equipment: req.body.equipment,
-
+                
             })
             event.save()
             .then((result) => {
@@ -48,88 +49,72 @@ router.post('/', (req, res) => {
                 })
             })
         }
-   })
-})
-
-router.get('/', (req, res) => {
-   Event.find()
-   .exec()
-   .then(events => {
-       res.status(200).json({
-           count: events.length,
-           events: events,
-       })
-   })
-   .catch(err => {
-       res.status(500).json({
-           error: err
-       })
-   })
-})
-
-router.get('/coordinates', (req, res) => {
-
-   const longtitude = req.query.long
-   const latitude = req.query.lat
-   Event.find({location:[longtitude,latitude]})
-   .exec()
-   .then(events => {
-       res.status(200).json({
-           count: events.length,
-           events: events,
-       });
-   })
-   .catch(err => {
-       res.status(500).json({
-           error: err
-       })
-   })
-})
-
-
-
-router.get('/in-radius',(req,res) =>{
-    const coords = [req.query.long,req.query.lat]
-    const radius = req.query.radius
-    Event.find({location: {
-        $near:{
-            $geometry:{
-                type: 'Point',
-                coordinates: coords,
-            },
-            $maxDistance: radius
-        }
-    }})
-    .exec()
-    .then((events)=> {
-        res.status(200).json({
-            count: events.length,
-            events: events,
-        });
     })
-    .catch(err => {
-        res.status(500).json({
-            error: err
+})
+
+
+router.get('/',(req,res) => {
+    
+    // get event by id
+    if ('id' in req.query) {
+        const eventId = req.query.id
+        return Event.findById(eventId).exec()
+        .then(event => {
+            res.status(201).json({
+                event: event
+            })
         })
-    })
-})
-
-/*
-
-   Street.find(
-        {
-            location: {
-                $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: coords,
-                    },
-                    $maxDistance: maxDistance,
-                    $minDistance: minDistance,
+        .catch((err) => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    }
+    
+    // get all events by radius
+    else if('long' in req.query && 'lat' in req.query && 'radius' in req.query) {
+        const coords = [req.query.long,req.query.lat]
+        const radius = req.query.radius
+        return Event.find({location: {
+            $near:{
+                $geometry:{
+                    type: 'Point',
+                    coordinates: coords,
                 },
-            },
+                $maxDistance: radius
+            }
+        }})
+        .exec()
+        .then((events)=> {
+            res.status(200).json({
+                count: events.length,
+                events: events.map((event) => event._id),
+            });
         })
-*/
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    }
+
+    // get all events
+    else {
+        return Event.find()
+        .exec()
+        .then(events => {
+            res.status(200).json({
+                count: events.length,
+                events: events,
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    }
+})
 
 module.exports = router
 

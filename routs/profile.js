@@ -103,7 +103,6 @@ router.post('/enroll', (req, res) => {
         }
         else {
             Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
-                console.log(profile)
                 profile.attendingEvents.push(event._id) 
                 event.participants.push(profile._id)
                 res.status(400).json({message: `user id ${profile._id} enrolled to event id ${event._id}`})
