@@ -6,6 +6,6 @@ router.post('/signup', profileController.signup)
 
 router.post('/login', profileController.login)
 
-router.post('/enroll', profileController.enroll)
+router.post('/enroll',checkAuth, profileController.enroll)
 
 module.exports = router
