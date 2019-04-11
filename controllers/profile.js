@@ -7,7 +7,7 @@ require('dotenv').config()
 
 
 exports.enroll = (req, res) => {
-    Event.findById(req.query.eventId).exec()
+    Event.findById(req.query.id).exec()
     .then(event => {
         if(event.maxCapacity === event.participants.length){
             return res.status(401).json({error: 'Event reached maximum capacity'})
@@ -29,7 +29,7 @@ exports.login = (req, res) => {
         if (profile === null) {
             return res.status(401).json({
                 
-                message: "Auth failed"
+                message: "Authentication failed"
             })
         }
         bcrypt.compare(req.body.password, profile.password, (err, result) => {
@@ -48,12 +48,12 @@ exports.login = (req, res) => {
                     expiresIn: "1h"
                 })
                 return res.status(200).json({
-                    message: "Auth successful",
+                    message: "Authentication successful",
                     token: token
                 })
             }
             res.status(401).json({
-                message: "Auth failed"
+                message: "Authentication failed"
             })
         })
         

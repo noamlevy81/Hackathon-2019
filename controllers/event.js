@@ -18,7 +18,7 @@ exports.postEvent = (req, res) => {
                 name: req.body.name,
                 category: req.body.category,
                 maxCapacity: req.body.maxCapacity,
-                participants: null,
+                participants: new Array(),
                 description: req.body.description,
                 equipment: req.body.equipment,
  
@@ -34,7 +34,7 @@ exports.postEvent = (req, res) => {
                         name: result.name,
                         category: result.category,
                         maxCapacity: result.maxCapacity,
-                        participants: null,
+                        participants: new Array(),
                         description: result.description,
                         equipment: result.equipment,
                     },
