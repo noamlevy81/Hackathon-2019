@@ -45,7 +45,7 @@ exports.login = (req, res) => {
                 },
                 process.env.JWT_KEY,
                 {
-                    expiresIn: "1h"
+                    expiresIn: "24h"
                 })
                 return res.status(200).json({
                     message: "Authentication successful",
