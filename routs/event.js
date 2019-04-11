@@ -17,6 +17,7 @@ router.post('/', (req, res) => {
             participants: null,
             description: req.body.description,
             equipment: req.body.equipment,
+
         })
         return event.save()
         .then((result) => {
@@ -62,8 +63,9 @@ router.get('/', (req, res) => {
 
 router.get('/:coordinates', (req, res) => {
     
-    const {longtitude, latitude} = req.query.coordinates 
-    Event.find()
+    const longtitude = req.query.longtitude
+    const latitude = req.query.latitude
+    Event.find({location:[longtitude,latitude]})
     .exec()
     .then(events => {
         res.status(200).json({
@@ -77,6 +79,32 @@ router.get('/:coordinates', (req, res) => {
         })
     })
 })
+
+router.get('/in-radius',(req,res) =>{
+    const longtitude = req.query.longtitude
+    const latitude = req.query.latitude
+    Event.find()
+    .exec()
+    .then()
+    .catch()
+})
+
+/*
+
+   Street.find(
+        {
+            location: {
+                $near: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: coords,
+                    },
+                    $maxDistance: maxDistance,
+                    $minDistance: minDistance,
+                },
+            },
+        })
+*/
 
 module.exports = router
 
