@@ -13,10 +13,20 @@ exports.enroll = (req, res) => {
             return res.status(401).json({error: 'Event reached maximum capacity'})
         }
         else {
-            Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
+            Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec()
+            .then(profile => {
+                if(event.participants.contains(profile._id) || event.adminUser === profile._id){
+                    return res.status(409).json({message: "cannot join to already enrolled event"})
+                }
                 profile.attendingEvents.push(event._id) 
                 event.participants.push(profile._id)
-                res.status(400).json({message: `user id ${profile._id} enrolled to event id ${event._id}`})
+                res.status(200).json({message: `user id ${profile._id} enrolled to event id ${event._id}`})
+            })
+            .catch((err) => {
+                console.log(err)
+                res.status(500).json({
+                    error: err
+                })
             })
         }
     })
@@ -47,7 +57,6 @@ exports.login = (req, res) => {
                 {
                     expiresIn: "24h"
                 })
-                console.log("hello");
                 return res.status(200).json({
                     message: "Authentication successful",
                     token: token
@@ -60,7 +69,7 @@ exports.login = (req, res) => {
         
     })
     .catch(err => {
-        console.log(err);
+        console.log(err)
         res.status(500).json({
             error: err
         })
@@ -107,5 +116,31 @@ exports.signup = (req, res) => {
                 }
             })
         }
+    })
+}
+
+exports.getEvents = (req, res) => {
+    
+    let requestType
+    if('attending' in req.query) {
+        requestType = attendingEvents
+    }
+    else if('admin' in req.query) {
+        requestType = adminEvents
+    }
+    Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec()
+    .then((profile) => {
+        if(profile !== null) {
+            return res.status(201).json({adminEvents: profile[`${requestType}`]})
+        }
+        else {
+            return res.status(500).json({message: 'profile doesn\'t exist'})
+        }
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
     })
 }

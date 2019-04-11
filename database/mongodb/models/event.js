@@ -7,7 +7,7 @@ const eventSchema = mongoose.Schema({
         type: [Number],
         index: '2dsphere',
       },
-    adminUser: { type:String }, // acces token
+    adminUser: { type:String }, // access token
     name: { type: String },
     category:{ type: String },
     maxCapacity: { type: Number },
