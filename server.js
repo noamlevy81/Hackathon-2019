@@ -5,7 +5,8 @@ require('dotenv').config()
 const mongoDb = require('./database/mongodb/mongodb')
 const bodyParser = require("body-parser")
 const port = process.env.PORT || 8080
-const eventRoutes = require('./routs/event')
+const eventRouts = require('./routs/event')
+const profileRouts = require('./routs/profile')
 const server = http.createServer(app)
 
 
@@ -32,7 +33,9 @@ app.use((req, res, next) => {
 })
 
 // Routes which should handle requests
-app.use('/event', eventRoutes)
+app.use('/event', eventRouts)
+app.use('/profile', profileRouts)
+
 
 app.use((req, res, next) => {
   const error = new Error("Not found")

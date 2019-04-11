@@ -13,13 +13,13 @@ router.post('/', (req, res) => {
         maxCapacity: req.body.maxCapacity,
         description: req.body.description,
         equipment: req.body.equipment,
-    });
+    })
     return event.save()
     .then((result) => {
         res.status(201).json({
             message: "event created sucessfuly",
             createdOrder: {
-                _id: result._id,
+                _id: new mongoose.Types.ObjectId(),
                 location: result.location,
                 //adminUser: result.adminUser,
                 name: result.name,
@@ -46,7 +46,7 @@ router.get('/', (req, res) => {
         res.status(200).json({
             count: events.length,
             events: events,
-        });
+        })
     })
     .catch(err => {
         res.status(500).json({
