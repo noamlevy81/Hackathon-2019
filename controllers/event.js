@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken')
 const Profile = require('../database/mongodb/models/profile')
 
 exports.postEvent = (req, res) => {
-    Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
+    Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec()
+    .then(profile => {
         if(req.headers.authorization === null) {
             res.status(res.status(500).json({
                 error: 'no access token exists'
@@ -39,97 +40,94 @@ exports.postEvent = (req, res) => {
                         equipment: result.equipment,
                     },
                 })
-                Profile.update(
-                    { "_id": profile._id},
-                    { "$push": { "adminEvents": result._id } },
-                    );
+                profile.adminEvents.push(result._id)
+                profile.save()
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({
+                    error: err
                 })
-                .catch(err => {
-                    console.log(err);
-                    res.status(500).json({
-                        error: err
-                    })
-                })
-            }
+            })
+        }
+    })
+}
+
+exports.getEvent = (req,res) => {
+    
+    // get event by id
+    if ('id' in req.query) {
+        const eventId = req.query.id
+        return Event.findById(eventId).exec()
+        .then(event => {
+            res.status(201).json({
+                event: event
+            })
+        })
+        .catch((err) => {
+            res.status(500).json({
+                error: err
+            })
         })
     }
     
-    exports.getEvent = (req,res) => {
-        
-        // get event by id
-        if ('id' in req.query) {
-            const eventId = req.query.id
-            return Event.findById(eventId).exec()
-            .then(event => {
-                res.status(201).json({
-                    event: event
-                })
+    // get all events by radius
+    else if('long' in req.query && 'lat' in req.query && 'radius' in req.query) {
+        const coords = [req.query.long,req.query.lat]
+        const radius = req.query.radius
+        return Event.find({location: {
+            $near:{
+                $geometry:{
+                    type: 'Point',
+                    coordinates: coords,
+                },
+                $maxDistance: radius
+            }
+        }})
+        .exec()
+        .then((events)=> {
+            res.status(200).json({
+                count: events.length,
+                events: events.map((event) => event._id),
+            });
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
             })
-            .catch((err) => {
-                res.status(500).json({
-                    error: err
-                })
-            })
-        }
-        
-        // get all events by radius
-        else if('long' in req.query && 'lat' in req.query && 'radius' in req.query) {
-            const coords = [req.query.long,req.query.lat]
-            const radius = req.query.radius
-            return Event.find({location: {
-                $near:{
-                    $geometry:{
-                        type: 'Point',
-                        coordinates: coords,
-                    },
-                    $maxDistance: radius
-                }
-            }})
-            .exec()
-            .then((events)=> {
-                res.status(200).json({
-                    count: events.length,
-                    events: events.map((event) => event._id),
-                });
-            })
-            .catch(err => {
-                res.status(500).json({
-                    error: err
-                })
-            })
-        }
-        else if ('key' in req.query)
-        {
-            var query = {}
-            query[req.query.key] = req.query.val
-            return Event.find(query).exec().then(events =>{
-                res.status(200).json({
-                    count: events.length,
-                    events: events.map((event) => event._id),
-                });
-            })
-            
-            .catch(err =>{
-                res.status(500).json({
-                    error:err
-                })
-            })
-        }
-        // get all events
-        else {
-            return Event.find()
-            .exec()
-            .then(events => {
-                res.status(200).json({
-                    count: events.length,
-                    events: events,
-                })
-            })
-            .catch(err => {
-                res.status(500).json({
-                    error: err
-                })
-            })
-        }
+        })
     }
-    
+    else if ('key' in req.query)
+    {
+        var query = {}
+        query[req.query.key] = req.query.val
+        return Event.find(query).exec().then(events =>{
+            res.status(200).json({
+                count: events.length,
+                events: events.map((event) => event._id),
+            });
+        })
+        
+        .catch(err =>{
+            res.status(500).json({
+                error:err
+            })
+        })
+    }
+    // get all events
+    else {
+        return Event.find()
+        .exec()
+        .then(events => {
+            res.status(200).json({
+                count: events.length,
+                events: events,
+            })
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            })
+        })
+    }
+}
