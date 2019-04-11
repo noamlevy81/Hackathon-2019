@@ -3,8 +3,11 @@ const mongoose = require('mongoose');
 const eventSchema = mongoose.Schema({
 
     _id: mongoose.Schema.Types.ObjectId,
-    location: { type: [Number, Number] },
-    adminUser: { type:String }, // acsses token
+    location: {
+        type: [Number],
+        index: '2dsphere',
+      },
+    adminUser: { type:String }, // acces token
     name: { type: String },
     category:{ type: String },
     maxCapacity: { type: Number },
