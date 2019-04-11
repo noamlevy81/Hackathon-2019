@@ -124,7 +124,7 @@ exports.signup = (req, res) => {
 }
 
 exports.getEvents = (req, res) => {
-    
+
     Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec()
     .then((profile) => {
         if(profile !== null) {
