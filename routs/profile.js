@@ -11,5 +11,4 @@ router.post('/enroll',checkAuth, profileController.enroll)
 
 router.get('/myEvents', checkAuth, profileController.getEvents)
 
-
 module.exports = router
