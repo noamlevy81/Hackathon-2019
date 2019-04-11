@@ -8,10 +8,10 @@ const profileSchema = mongoose.Schema({
         unique: true, 
         match: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
     },
-    password: { type: String, required: true },
-    adminEvents:{type:String},
-    attendingEvents:{type:String,require:true},
-    pendingEvents:{type:String,require:true},
+    password: { type: String },
+    adminEvents:{ type:[String] },
+    attendingEvents:{ type:[String] },
+    pendingEvents:{ type:[String] },
     age:Number
 });
 

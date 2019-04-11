@@ -27,9 +27,9 @@ router.post("/signup", (req, res) => {
                         _id: new mongoose.Types.ObjectId(),
                         email: req.body.email,
                         password: hash,
-                        //adminEvents:,
-                        //attendingEvents:,
-                        //pendingEvents:,
+                        adminEvents: null,
+                        attendingEvents: null,
+                        pendingEvents: null,
                         age:req.body.age
                     })
                     profile.save()
@@ -96,6 +96,21 @@ router.post('/login', (req, res) => {
         res.status(500).json({
             error: err
         })
+    })
+})
+
+router.post('/enroll/:eventId', (req, res) => {
+    Event.findById(req.query.eventId).exec()
+    .then(event => {
+        if(event.maxCapacity === event.participants.length){
+            return res.status(401).json({error: 'Event reached maximum capacity'})
+        }
+        else {
+            Profile.findOne({email: jwt.decode(req.headers.authorization.split(" ")[1]).email}).exec().then(profile => {
+                profile.attendingEvents.push(req.query.eventId) 
+                event.participants.push(profile._id)  
+            })
+        }
     })
 })
 module.exports = router
