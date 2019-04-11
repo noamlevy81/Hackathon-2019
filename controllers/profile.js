@@ -47,6 +47,7 @@ exports.login = (req, res) => {
                 {
                     expiresIn: "24h"
                 })
+                console.log("hello");
                 return res.status(200).json({
                     message: "Authentication successful",
                     token: token
@@ -90,7 +91,6 @@ exports.signup = (req, res) => {
                         adminEvents: new Array(),
                         attendingEvents: new Array(),
                         pendingEvents: new Array(),
-                        age:req.body.age
                     })
                     profile.save()
                     .then(result => {

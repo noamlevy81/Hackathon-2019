@@ -94,7 +94,23 @@ exports.postEvent = (req, res) => {
             })
         })
     }
- 
+    else if ('key' in req.query)
+    {
+        var query = {}
+        query[req.query.key] = req.query.val
+        return Event.find(query).exec().then(events =>{
+            res.status(200).json({
+                count: events.length,
+                events: events.map((event) => event._id),
+            });
+        })
+    
+        .catch(err =>{
+            res.status(500).json({
+                error:err
+            })
+        })
+    }
     // get all events
     else {
         return Event.find()
