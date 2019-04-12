@@ -4,7 +4,7 @@ const eventSchema = mongoose.Schema({
 
     _id: mongoose.Schema.Types.ObjectId,
     location: {
-        type: [Number],
+       type: [Number],
         index: '2dsphere',
       },
     adminUser: { type:String }, // access token

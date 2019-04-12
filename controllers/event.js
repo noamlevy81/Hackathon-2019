@@ -99,8 +99,10 @@ exports.getEvent = (req,res) => {
     }
     else if ('key' in req.query)
     {
+        console.log(req.query.val)
         var query = {}
         query[req.query.key] = req.query.val
+
         return Event.find(query).exec().then(events =>{
             res.status(200).json({
                 count: events.length,
@@ -121,7 +123,7 @@ exports.getEvent = (req,res) => {
         .then(events => {
             res.status(200).json({
                 count: events.length,
-                events: events,
+                events: events.map(event => event._id),
             })
         })
         .catch(err => {
